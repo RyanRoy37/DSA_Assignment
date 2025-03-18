@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100000
+
+// Function to calculate the sum of min and max elements of all subarrays of size k
+int sumOfMinAndMax(int arr[], int n, int k) {
+    int sum = 0;
+
+    // Deques for min and max elements
+    int minDeque[MAX], maxDeque[MAX];
+    int minFront = 0, minRear = -1, maxFront = 0, maxRear = -1;
+
+    // Print table header
+    printf("\n%-10s %-20s %-10s %-10s %-10s\n", "Index", "Subarray", "Min", "Max", "Sum");
+    printf("------------------------------------------------------------\n");
+
+    // Process first k elements
+    for (int i = 0; i < k; i++) {
+        // Remove elements from minDeque that are greater than the current element
+        while (minRear >= minFront && arr[minDeque[minRear]] >= arr[i])
+            minRear--;
+
+        // Remove elements from maxDeque that are smaller than the current element
+        while (maxRear >= maxFront && arr[maxDeque[maxRear]] <= arr[i])
+            maxRear--;
+
+        // Add new elements
+        minDeque[++minRear] = i;
+        maxDeque[++maxRear] = i;
+    }
+
+    // Process the rest of the array
+    for (int i = k; i <= n; i++) {
+        int minVal = arr[minDeque[minFront]];
+        int maxVal = arr[maxDeque[maxFront]];
+        int windowSum = minVal + maxVal;
+        sum += windowSum;
+
+        // Print current window details
+        printf("%-10d [", i - k);
+        for (int j = i - k; j < i; j++) {
+            printf("%d%s", arr[j], (j == i - 1) ? "]" : ", ");
+        }
+        printf("      %-10d  %-10d   %-10d\n", minVal, maxVal, windowSum);
+
+        // Remove elements which are out of this window
+        if (i < n) {  // Only process deque if more elements exist
+            if (minDeque[minFront] <= i - k)
+                minFront++;
+            if (maxDeque[maxFront] <= i - k)
+                maxFront++;
+
+            // Maintain the minDeque
+            while (minRear >= minFront && arr[minDeque[minRear]] >= arr[i])
+                minRear--;
+            minDeque[++minRear] = i;
+
+            // Maintain the maxDeque
+            while (maxRear >= maxFront && arr[maxDeque[maxRear]] <= arr[i])
+                maxRear--;
+            maxDeque[++maxRear] = i;
+        }
+    }
+
+    // Print final sum
+    printf("\nFinal Sum of minimum and maximum elements of all subarrays of size %d: %d\n", k, sum);
+
+    return sum;
+}
+
+// Driver Code
+int main() {
+    int n, k;
+
+    // Take input for array size
+    printf("Enter the size of the array: ");
+    scanf("%d", &n);
+
+    int arr[n];
+
+    // Take input for array elements
+    printf("Enter %d elements of the array: ", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Take input for window size k
+    printf("Enter the window size (k): ");
+    scanf("%d", &k);
+
+    // Validate k
+    if (k > n || k <= 0) {
+        printf("Invalid window size! It should be between 1 and %d.\n", n);
+        return 1;
+    }
+
+    sumOfMinAndMax(arr, n, k);
+
+    return 0;
+}
