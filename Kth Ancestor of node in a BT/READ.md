@@ -1,1 +1,2 @@
-
+Given a binary tree in which nodes are numbered from 1 to n. Given a node and a positive integer K. We have to print the K-th ancestor of the given node in the binary tree. If there does not exist any such ancestor then print -1.
+The idea to do this is to first traverse the binary tree and store the ancestor of each node in an array of size n. For example, suppose the array is ancestor[n]. Then at index i, ancestor[i] will store the ancestor of ith node. So, the 2nd ancestor of ith node will be ancestor[ancestor[i]] and so on. We will use this idea to calculate the kth ancestor of the given node. We can use level order traversal to populate this array of ancestors.
