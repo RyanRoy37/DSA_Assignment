@@ -1,0 +1,53 @@
+import math
+
+class TreeNode:
+    def __init__(self, data):
+        self.data = data
+        self.left = None
+        self.right = None
+
+def dfs(root, parent, ancestor):
+    """ Precompute the binary lifting table using DFS """
+    if not root:
+        return
+    
+    ancestor[root.data][0] = parent  # Store the immediate parent (2^0-th ancestor)
+    
+    for j in range(1, LOG):
+        if ancestor[root.data][j - 1] != -1:  
+            ancestor[root.data][j] = ancestor[ancestor[root.data][j - 1]][j - 1]
+
+    dfs(root.left, root.data, ancestor)
+    dfs(root.right, root.data, ancestor)
+
+def kthAncestor(n, ancestor, node, k):
+    """ Find the Kth ancestor of the given node using Binary Lifting """
+    for j in range(LOG):
+        if k & (1 << j):  # Check if the j-th bit in k is set
+            node = ancestor[node][j]
+            if node == -1:  # If we reach an invalid ancestor, return -1
+                return -1
+    return node
+
+# Tree Construction
+n = 7  # Number of nodes (1-based index)
+LOG = math.ceil(math.log2(n)) + 1  # Maximum power of 2 needed
+
+ancestor = [[-1] * LOG for _ in range(n + 1)]  # Ancestor table initialized to -1
+
+# Create Tree
+root = TreeNode(1)
+root.left = TreeNode(2)
+root.right = TreeNode(3)
+root.left.left = TreeNode(4)
+root.left.right = TreeNode(5)
+root.right.right = TreeNode(6)
+
+# Precompute ancestors using DFS
+dfs(root, -1, ancestor)
+
+# Queries
+print(kthAncestor(n, ancestor, 5, 1))  # Output: 2
+print(kthAncestor(n, ancestor, 5, 2))  # Output: 1
+print(kthAncestor(n, ancestor, 5, 3))  # Output: -1 (No 3rd ancestor)
+
